@@ -20,8 +20,8 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<ProductDTO>> getAllProducts(@RequestParam(defaultValue = "") String name, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-        Page<ProductDTO> productPage = productServiceInterface.listAllProductsPaginated(name, page, size);
+    public ResponseEntity<Page<ProductDTO>> getAllProducts(@RequestParam(defaultValue = "") String search, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        Page<ProductDTO> productPage = productServiceInterface.listAllProductsPaginated(search, page, size);
         return ResponseEntity.ok(productPage);
     }
 

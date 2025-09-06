@@ -36,10 +36,9 @@ public class Product {
 
     public Product(){}
 
-    public Product(String name, BigDecimal price, Integer stock, Integer version) {
+    public Product(String name, BigDecimal price, Integer stock) {
         this.name = name;
         this.price = price;
         this.stock = stock;
-        this.version = version;
     }
 }

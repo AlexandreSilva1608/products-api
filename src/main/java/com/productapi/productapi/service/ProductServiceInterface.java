@@ -5,5 +5,5 @@ import org.springframework.data.domain.Page;
 
 public interface ProductServiceInterface {
 
-    Page<ProductDTO> listAllProductsPaginated(String name, int page, int size);
+    Page<ProductDTO> listAllProductsPaginated(String search, int page, int size);
 }

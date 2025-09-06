@@ -17,6 +17,10 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderService implements OrderServiceInterface {
@@ -31,14 +35,21 @@ public class OrderService implements OrderServiceInterface {
 
     @Transactional
     public Order placeOrder(OrderRequestDTO orderRequest) {
+        Set<Long> productIds = orderRequest.getItems().stream()
+                .map(OrderItemRequestDTO::getProductId)
+                .collect(Collectors.toSet());
+
+        List<Product> foundProducts = productRepository.findAllById(productIds);
+        Map<Long, Product> productMap = foundProducts.stream()
+                .collect(Collectors.toMap(Product::getId, Function.identity()));
+
         List<UnavailableProductDTO> unavailableProducts = new ArrayList<>();
-        List<OrderItem> orderItems = new ArrayList<>();
-        BigDecimal totalOrderPrice = BigDecimal.ZERO;
-
         for (OrderItemRequestDTO itemDto : orderRequest.getItems()) {
-            Product product = productRepository.findById(itemDto.getProductId())
-                    .orElseThrow(() -> new ProductNotFoundException("Produto com ID " + itemDto.getProductId() + " não encontrado."));
+            Product product = productMap.get(itemDto.getProductId());
 
+            if (product == null) {
+                throw new ProductNotFoundException("Produto com ID " + itemDto.getProductId() + " não encontrado.");
+            }
             if (product.getStock() < itemDto.getQuantity()) {
                 unavailableProducts.add(new UnavailableProductDTO(product.getId(), product.getStock()));
             }
@@ -50,10 +61,11 @@ public class OrderService implements OrderServiceInterface {
 
         Order newOrder = new Order();
         newOrder.setCreatedAt(LocalDateTime.now());
+        BigDecimal totalOrderPrice = BigDecimal.ZERO;
+        List<OrderItem> orderItems = new ArrayList<>();
 
         for (OrderItemRequestDTO itemDto : orderRequest.getItems()) {
-            Product product = productRepository.findById(itemDto.getProductId()).get();
-
+            Product product = productMap.get(itemDto.getProductId());
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(newOrder);
             orderItem.setProduct(product);
@@ -63,11 +75,8 @@ public class OrderService implements OrderServiceInterface {
             orderItems.add(orderItem);
 
             product.setStock(product.getStock() - itemDto.getQuantity());
-            productRepository.save(product);
-
             totalOrderPrice = totalOrderPrice.add(orderItem.getLineTotal());
         }
-
         newOrder.setItems(orderItems);
         newOrder.setTotal(totalOrderPrice);
 

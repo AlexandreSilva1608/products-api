@@ -43,11 +43,11 @@ public class DatabaseInitializer implements CommandLineRunner {
     }
 
     private static List<Product> getProducts() {
-        Product product1 = new Product("Café Torrado 500g", new BigDecimal("18.90"), 5, 1);
-        Product product2 = new Product("Filtro de Papel nº103", new BigDecimal("7.50"), 10, 1);
-        Product product3 = new Product("Garrafa Térmica 1L", new BigDecimal("79.90"), 2, 1);
-        Product product4 = new Product("Açúcar Mascavo 1kg", new BigDecimal("16.00"), 0, 1);
-        Product product5 = new Product("Caneca Inox 300ml", new BigDecimal("29.00"), 8, 1);
+        Product product1 = new Product("Café Torrado 500g", new BigDecimal("18.90"), 5);
+        Product product2 = new Product("Filtro de Papel nº103", new BigDecimal("7.50"), 10);
+        Product product3 = new Product("Garrafa Térmica 1L", new BigDecimal("79.90"), 2);
+        Product product4 = new Product("Açúcar Mascavo 1kg", new BigDecimal("16.00"), 0);
+        Product product5 = new Product("Caneca Inox 300ml", new BigDecimal("29.00"), 8);
 
         return Arrays.asList(product1, product2, product3, product4, product5);
     }

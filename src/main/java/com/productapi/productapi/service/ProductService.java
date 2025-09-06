@@ -20,14 +20,14 @@ public class ProductService implements ProductServiceInterface{
 
 
     @Override
-    public Page<ProductDTO> listAllProductsPaginated(String name, int page, int size) {
+    public Page<ProductDTO> listAllProductsPaginated(String search, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("name"));
 
         Page<Product> productPage;
-        if (name == null || name.trim().isEmpty()) {
+        if (search == null || search.trim().isEmpty()) {
             productPage = productRepository.findAll(pageable);
         } else {
-            productPage = productRepository.findByNameContainingIgnoreCase(name, pageable);
+            productPage = productRepository.findByNameContainingIgnoreCase(search, pageable);
         }
 
         return productPage.map(ProductDTO::new);
