@@ -2,13 +2,11 @@ package com.productapi.productapi.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.math.BigDecimal;
 
-@NoArgsConstructor
 @Getter
 @Setter
 @Entity
@@ -17,7 +15,7 @@ public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private double id;
+    private Long id;
 
     @Column(name = "name", length = 120, nullable = false)
     private String name;
@@ -30,9 +28,18 @@ public class Product {
 
     @ColumnDefault("true")
     @Column(name = "active", nullable = false)
-    private boolean active;
+    private boolean active = true;
 
     @Version
     @Column(name = "version", nullable = false)
     private Integer version;
+
+    public Product(){}
+
+    public Product(String name, BigDecimal price, Integer stock, Integer version) {
+        this.name = name;
+        this.price = price;
+        this.stock = stock;
+        this.version = version;
+    }
 }
