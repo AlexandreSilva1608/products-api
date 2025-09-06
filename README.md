@@ -36,7 +36,7 @@ Ao iniciar, o Hibernate criará e populará as tabelas automaticamente. A API es
 
 -   **URL:** `/products`
 -   **Método:** `GET`
--   **Parâmetros:** `name` (filtro parcial), `page` (padrão `0`), `size` (padrão `10`).
+-   **Parâmetros:** `search` (filtro parcial por nome), `page` (padrão `0`), `size` (padrão `10`).
 
 ### Criar um Pedido (Checkout)
 
