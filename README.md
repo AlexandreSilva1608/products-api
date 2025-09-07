@@ -1,15 +1,16 @@
-# Product APP - Frontend em Angular
+# Product API - API de Catálogo e Pedidos
 
-Esta é a aplicação frontend para o teste técnico, desenvolvida com Angular. A aplicação consome a API de backend para listar produtos, gerir um carrinho de compras e finalizar pedidos.
+Esta API de backend, desenvolvida com Java e Spring Boot para um teste técnico, gere um catálogo de produtos e processa pedidos atomicamente, garantindo a consistência do stock.
 
 ## Pré-requisitos
 
-Para executar este projeto, irá precisar de ter instalado:
-
-- Node.js e npm (versão 18 ou superior)
-- Angular CLI (instalado globalmente: `npm install -g @angular/cli`)
+* Java (versão 21 ou superior)
+* Maven (versão 3.8 ou superior)
+* Servidor de banco de dados MySQL a correr localmente.
 
 ## Como Rodar a Aplicação
+
+A aplicação está configurada para criar e popular o banco de dados automaticamente na primeira inicialização.
 
 1.  **Clone o repositório:**
     ```bash
@@ -17,20 +18,63 @@ Para executar este projeto, irá precisar de ter instalado:
     cd products-api
     ```
 
-2.  **Instale as dependências:**
+2.  **Configure o Banco de Dados:**
+    -   Certifique-se de que o seu serviço MySQL está ativo.
+    -   Copie `src/main/resources/application.properties.example` para `application.properties`.
+    -   No novo ficheiro, preencha as suas credenciais do MySQL (`spring.datasource.username` e `spring.datasource.password`).
+
+3.  **Execute a aplicação:**
     ```bash
-    npm install
+    mvn spring-boot:run
     ```
 
-3.  **Configure a URL da API:**
-    - A URL da API de backend está definida no ficheiro `src/environments/environment.ts.example`.
-    - Crie um arquivo `environment.ts` e cole o conteúdo do ficheiro `environment.ts.example`.
-    - Configure a `apiUrl` com o endereço da sua API.
+Ao iniciar, o Hibernate criará e populará as tabelas automaticamente. A API estará pronta para uso em `http://localhost:8080`.
 
-4.  **Execute a aplicação:**
-    - Certifique-se de que a sua API de backend está a ser executada.
-    - Inicie o servidor de desenvolvimento do Angular:
-    ```bash
-    ng serve
+## Endpoints da API
+
+### Listar Produtos
+
+-   **URL:** `/products`
+-   **Método:** `GET`
+-   **Parâmetros:** `search` (filtro parcial por nome), `page` (padrão `0`), `size` (padrão `10`).
+
+### Criar um Pedido (Checkout)
+
+-   **URL:** `/orders`
+-   **Método:** `POST`
+-   **Corpo (JSON):**
+    ```json
+    {
+      "items": [
+        { "productId": 1, "quantity": 2 }
+      ]
+    }
     ```
-    A aplicação estará disponível em `http://localhost:4200/`.
+**Respostas:** **201** (Sucesso), **409** (Stock insuficiente), **400** (Requisição inválida) **404** (Endpoint não encontrado ou produto não encontrado).
+
+---
+
+## Estratégia de Atomicidade e Rollback
+
+A atomicidade do checkout é garantida pela anotação `@Transactional` no `OrderService`. Qualquer falha durante a validação ou atualização de stock resulta num **rollback** completo da transação, mantendo a consistência dos dados.
+
+---
+
+## Consulta SQL: Top 3 Produtos Mais Vendidos
+
+A consulta abaixo identifica os três produtos mais vendidos pela soma das quantidades.
+
+```sql
+SELECT
+    p.id,
+    p.name,
+    SUM(oi.quantity) AS total_sold
+FROM
+    products p
+JOIN
+    order_items oi ON p.id = oi.product_id
+GROUP BY
+    p.id, p.name
+ORDER BY
+    total_sold DESC
+LIMIT 3;
