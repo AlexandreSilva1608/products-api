@@ -50,7 +50,7 @@ Ao iniciar, o Hibernate criará e populará as tabelas automaticamente. A API es
       ]
     }
     ```
--   **Respostas:** **201** (Sucesso), **409** (Stock insuficiente), **400** (Requisição inválida).
+**Respostas:** **201** (Sucesso), **409** (Stock insuficiente), **400** (Requisição inválida) **404** (Endpoint não encontrado ou produto não encontrado).
 
 ---
 

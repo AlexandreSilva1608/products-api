@@ -41,7 +41,6 @@ class ProductServiceTest {
 
         Page<ProductDTO> result = productService.listAllProductsPaginated("", 0, 10);
 
-        // Assert
         assertEquals(1, result.getTotalElements());
         assertEquals("Café", result.getContent().get(0).getName());
 

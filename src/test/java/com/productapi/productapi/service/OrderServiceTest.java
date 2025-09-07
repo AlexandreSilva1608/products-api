@@ -66,7 +66,7 @@ class OrderServiceTest {
 
         assertNotNull(createdOrder);
         assertEquals(1, createdOrder.getItems().size());
-        assertTrue(new BigDecimal("37.80").compareTo(createdOrder.getTotal()) == 0);
+        assertEquals(0, new BigDecimal("37.80").compareTo(createdOrder.getTotal()));
         assertEquals(8, product1.getStock());
 
         verify(productRepository, times(1)).findAllById(any());
