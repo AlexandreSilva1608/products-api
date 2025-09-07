@@ -42,10 +42,10 @@ class OrderServiceTest {
 
     @BeforeEach
     void setUp() {
-        product1 = new Product("Café 500g", new BigDecimal("18.90"), 10);
+        product1 = new Product("Café 500g", new BigDecimal("18.90"), 5);
         product1.setId(1L);
 
-        product2 = new Product("Garrafa Térmica 1L", new BigDecimal("79.90"), 5);
+        product2 = new Product("Garrafa Térmica 1L", new BigDecimal("79.90"), 2);
         product2.setId(2L);
     }
 
@@ -118,5 +118,34 @@ class OrderServiceTest {
         assertEquals("Produto com ID 99 não encontrado.", exception.getMessage());
         verify(orderRepository, never()).save(any(Order.class));
     }
+
+    @Test
+    @DisplayName("Deve falhar ao tentar finalizar a compra quando um dos produtos tiver estoque insuficiente")
+    void shouldFailOrderWhenOneProductHasInsufficientStock() {
+        OrderItemRequestDTO garrafaDto = new OrderItemRequestDTO();
+        garrafaDto.setProductId(2L);
+        garrafaDto.setQuantity(3);
+
+        OrderItemRequestDTO cafeDto = new OrderItemRequestDTO();
+        cafeDto.setProductId(1L);
+        cafeDto.setQuantity(2);
+
+        OrderRequestDTO orderRequest = new OrderRequestDTO();
+        orderRequest.setItems(List.of(garrafaDto, cafeDto));
+
+        when(productRepository.findAllById(Set.of(2L, 1L))).thenReturn(List.of(product2, product1));
+
+        InsufficientStockException exception = assertThrows(
+                InsufficientStockException.class,
+                () -> orderService.placeOrder(orderRequest)
+        );
+
+        assertEquals("Estoque insuficiente para um ou mais produtos.", exception.getMessage());
+        assertEquals(1, exception.getUnavailableProducts().size());
+        assertEquals(2L, exception.getUnavailableProducts().get(0).getProductId());
+
+        verify(orderRepository, never()).save(any(Order.class));
+    }
+
 }
 
